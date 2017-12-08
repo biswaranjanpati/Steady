@@ -13,30 +13,32 @@ class FileHandler {
         return $data;
     }
     
-    function writePost($postData) {
-        // Create output directories for post
-        $outputPath = $this->siteConfig["build_path"] . '/posts/';
-        $postPath = $outputPath . $postData["slug"] . '/';
+    function writePage($pageData) {
+        $this->logger->info("Writing page: " . $pageData['slug']);
+        
+        // Create output directories for page
+        $outputPath = $this->siteConfig["build_path"] . '/pages/';
+        $pagePath = $outputPath . $pageData["slug"] . '/';
         
         if(!is_dir($outputPath)){
             mkdir($outputPath, 0755);
         }
-        if(!is_dir($postPath)){
-            mkdir($postPath, 0755);
+        if(!is_dir($pagePath)){
+            mkdir($pagePath, 0755);
         }
         
-        // Write post to file
+        // Write page to file
         $fileName = "index.html";
-        $fh = fopen($postPath . $fileName, 'w') or die("can't open file");
-        fwrite($fh, $postData["html"]);
+        $fh = fopen($pagePath . $fileName, 'w') or die("can't open file");
+        fwrite($fh, $pageData["html"]);
         fclose($fh);
         
         // Copy all other resources from src to output
-        $files = glob($this->siteConfig['post_path'] . '/' . $postData["slug"] . '/*');
+        $files = glob($this->siteConfig['page_path'] . '/' . $pageData["slug"] . '/*');
         foreach ($files as $filePath) {
             $baseName = basename($filePath);
-            if ($baseName != "post.md") {
-                copy($filePath, $postPath . $baseName);
+            if ($baseName != "page.md") {
+                copy($filePath, $pagePath . $baseName);
             }
         }
     }

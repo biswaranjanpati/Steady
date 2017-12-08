@@ -17,37 +17,37 @@ class Steady {
 	}
     
     /*
-        Full refresh of all posts
+        Full refresh of all pages
     */
     function deepRefresh() {
-        $dirs = glob($this->siteConfig['post_path'] . '/*', GLOB_ONLYDIR);
+        $dirs = glob($this->siteConfig['page_path'] . '/*', GLOB_ONLYDIR);
         
-        foreach ($dirs as $postDir) {
-            $postData = $this->processSinglePost($postDir);
+        foreach ($dirs as $pageDir) {
+            $pageData = $this->processSinglePage($pageDir);
             
             $FH = new FileHandler($this->siteConfig, $this->logger);
-            $FH->writePost($postData);
+            $FH->writePage($pageData);
         }
     }
     
-    function processSinglePost($postDir) {
-        $Post = new Post($this->siteConfig, $this->logger);
-        $Post->loadPost(basename($postDir));
+    function processSinglePage($pageDir) {
+        $Page = new Page($this->siteConfig, $this->logger);
+        $Page->loadPage(basename($pageDir));
         
         $tpl = "post";
-        if (isset($Post->metadata['template'])) {
-            $tpl = $Post->metadata['template'];
+        if (isset($Page->metadata['template'])) {
+            $tpl = $Page->metadata['template'];
         }
 
         $vars = array(
-            "meta" => $Post->metadata,
-            "content" => $Post->content
+            "meta" => $Page->metadata,
+            "content" => $Page->content
         );
         $html = $this->compileTemplate($tpl, $vars);
         
         $ret = array(
-            "slug" => $Post->metadata['slug'],
-            "date" => $Post->metadata['date'],
+            "slug" => $Page->metadata['slug'],
+            "date" => $Page->metadata['date'],
             "html" => $html
         );
         

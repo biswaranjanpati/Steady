@@ -1,28 +1,28 @@
 <?php
 namespace Steady;
 
-class Post {
+class Page {
     
 	function __construct($siteConfig, $logger) {
         $this->siteConfig = $siteConfig;
         $this->logger = $logger;
 	}
     
-    function loadPost($postDir) {
+    function loadPage($pageDir) {
         $FH = new FileHandler($this->siteConfig, $this->logger);
-        $data = $FH->loadFileFromPath($this->siteConfig['post_path'] . '/' . $postDir . '/post.md');
+        $data = $FH->loadFileFromPath($this->siteConfig['page_path'] . '/' . $pageDir . '/page.md');
         
         list($rawMetadata, $rawContent) = $this->splitDocument($data);
         
-        $this->metadata = $this->parsePostMetaData($rawMetadata);
-        $this->metadata["slug"] = $postDir;
+        $this->metadata = $this->parsePageMetaData($rawMetadata);
+        $this->metadata["slug"] = $pageDir;
         
         $parser = new \Michelf\MarkdownExtra;
         $this->content = $parser->transform($rawContent);
     }
     
     /*
-        Splits a post into metadata and content parts
+        Splits a page into metadata and content parts
     */
     function splitDocument($data) {
         $pattern = '/\s+={3,}\s+/';
@@ -30,9 +30,9 @@ class Post {
     }
     
     /*
-        Returns an associative array of post metadata
+        Returns an associative array of page metadata
     */
-    function parsePostMetaData($rawMetadata) {
+    function parsePageMetaData($rawMetadata) {
 
         $array = array();
         $lines = explode("\n", $rawMetadata);
