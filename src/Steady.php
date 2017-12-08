@@ -22,12 +22,17 @@ class Steady {
     function deepRefresh() {
         $dirs = glob($this->siteConfig['page_path'] . '/*', GLOB_ONLYDIR);
         
+        $pagesArray = array();
+        
         foreach ($dirs as $pageDir) {
             $pageData = $this->processSinglePage($pageDir);
             
+            $pagesArray[] = $pageData;
+
             $FH = new FileHandler($this->siteConfig, $this->logger);
-            $FH->writePage($pageData);
+            $FH->writeSinglePage($pageData);
         }
+        
     }
     
     function processSinglePage($pageDir) {
@@ -45,14 +50,19 @@ class Steady {
         );
         $html = $this->compileTemplate($tpl, $vars);
         
+        $date = \DateTime::createFromFormat($this->siteConfig["date_format"], $Page->metadata['date']);
+        $timestamp = $date->format('U');
+        
         $ret = array(
             "slug" => $Page->metadata['slug'],
             "date" => $Page->metadata['date'],
+            "timestamp" => $timestamp,
             "html" => $html
         );
         
         return $ret;
     }
+    
 	
 	function compileTemplate($template, $vars) {
 		$config = array(

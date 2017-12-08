@@ -43,7 +43,7 @@ class Page {
         */
         
         foreach ($lines as $line) {
-            list($key, $value) = explode(":", $line);
+            list($key, $value) = explode(":", $line, 2);
             $array[strtolower(trim($key))] = trim($value);
         }
         

@@ -13,7 +13,11 @@ class FileHandler {
         return $data;
     }
     
-    function writePage($pageData) {
+    /*
+    Compile a page and write the output to files.
+    Creates a directory for the page and copies all resources included in source dir.
+    */
+    function writeSinglePage($pageData) {
         $this->logger->info("Writing page: " . $pageData['slug']);
         
         // Create output directories for page
@@ -29,10 +33,8 @@ class FileHandler {
         
         // Write page to file
         $fileName = "index.html";
-        $fh = fopen($pagePath . $fileName, 'w') or die("can't open file");
-        fwrite($fh, $pageData["html"]);
-        fclose($fh);
-        
+        file_put_contents($pagePath . $fileName, $pageData["html"]);
+
         // Copy all other resources from src to output
         $files = glob($this->siteConfig['page_path'] . '/' . $pageData["slug"] . '/*');
         foreach ($files as $filePath) {
