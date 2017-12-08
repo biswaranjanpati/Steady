@@ -18,8 +18,12 @@ class Configuration {
         $this->logger->info("Loading config: " . $file);
         
         $config = parse_ini_file($file, true);
+        
+        /*
+        TODO: verify all paths exist and are writable
+        */
+        
         return $config;
-
 	}
 }
 ?>

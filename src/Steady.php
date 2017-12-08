@@ -23,26 +23,42 @@ class Steady {
         $dirs = glob($this->siteConfig['post_path'] . '/*', GLOB_ONLYDIR);
         
         foreach ($dirs as $postDir) {
-            $Post = new Post($this->siteConfig, $this->logger);
-            $Post->loadPost(basename($postDir));
-            #print_r($Post->metadata);
-			
-			
-			$vars = array(
-				"meta" => $Post->metadata,
-				"content" => $Post->content
-			);
-			$html = $this->compileTemplate('post', $vars);
-			
-			print($html);
-
+            $postData = $this->processSinglePost($postDir);
+            
+            $FH = new FileHandler($this->siteConfig, $this->logger);
+            $FH->writePost($postData);
         }
+    }
+    
+    function processSinglePost($postDir) {
+        $Post = new Post($this->siteConfig, $this->logger);
+        $Post->loadPost(basename($postDir));
+        
+        $tpl = "post";
+        if (isset($Post->metadata['template'])) {
+            $tpl = $Post->metadata['template'];
+        }
+
+        $vars = array(
+            "meta" => $Post->metadata,
+            "content" => $Post->content
+        );
+        $html = $this->compileTemplate($tpl, $vars);
+        
+        $ret = array(
+            "slug" => $Post->metadata['slug'],
+            "date" => $Post->metadata['date'],
+            "html" => $html
+        );
+        
+        return $ret;
     }
 	
 	function compileTemplate($template, $vars) {
 		$config = array(
 			 "tpl_dir"       => $this->siteConfig['template_path'] . '/',
-			 "cache_dir"     => "vendor/rain/raintpl/cache/"
+			 "cache_dir"     => "vendor/rain/raintpl/cache/",
+             "auto_escape" => false
 		);
 		
 		$TPL = new \Rain\Tpl;

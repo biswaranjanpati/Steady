@@ -8,14 +8,17 @@ class Post {
         $this->logger = $logger;
 	}
     
-    function loadPost($postPath) {
-        $FH = new FileHandler($this->logger);
-        $data = $FH->loadFileFromPath($this->siteConfig['post_path'] . '/' . $postPath . '/post.md');
+    function loadPost($postDir) {
+        $FH = new FileHandler($this->siteConfig, $this->logger);
+        $data = $FH->loadFileFromPath($this->siteConfig['post_path'] . '/' . $postDir . '/post.md');
         
         list($rawMetadata, $rawContent) = $this->splitDocument($data);
         
         $this->metadata = $this->parsePostMetaData($rawMetadata);
-        $this->content = $rawContent;
+        $this->metadata["slug"] = $postDir;
+        
+        $parser = new \Michelf\MarkdownExtra;
+        $this->content = $parser->transform($rawContent);
     }
     
     /*
@@ -34,9 +37,14 @@ class Post {
         $array = array();
         $lines = explode("\n", $rawMetadata);
 
+        /*
+            TODO: verify template exists
+            TODO: verify date is in right format
+        */
+        
         foreach ($lines as $line) {
             list($key, $value) = explode(":", $line);
-            $array[trim($key)] = trim($value);
+            $array[strtolower(trim($key))] = trim($value);
         }
         
         // Handle tags array
