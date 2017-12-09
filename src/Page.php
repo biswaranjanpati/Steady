@@ -7,7 +7,7 @@ class Page {
         $this->logger = $logger;
 	}
     
-    function loadPage($pageDir) {
+    public function loadPage($pageDir) {
         
         $FH = new FileHandler($this->siteConfig, $this->logger);
         $data = $FH->loadFileFromPath($this->siteConfig['page_path'] . '/' . $pageDir . '/page.md');
@@ -19,12 +19,14 @@ class Page {
         
         $parser = new \Michelf\MarkdownExtra;
         $this->content = $parser->transform($rawContent);
+		
+		$this->compilePageTemplate();
     }
     
     /*
         Splits a page into metadata and content parts
     */
-    function splitDocument($data) {
+    private function splitDocument($data) {
         $pattern = '/\s+={3,}\s+/';
         return preg_split($pattern, $data, 2);
     }
@@ -32,7 +34,7 @@ class Page {
     /*
         Returns an associative array of page metadata
     */
-    function parsePageMetaData($rawMetadata) {
+    private function parsePageMetaData($rawMetadata) {
 
         $array = array();
         $lines = explode("\n", $rawMetadata);
@@ -47,15 +49,38 @@ class Page {
             $array[strtolower(trim($key))] = trim($value);
         }
         
+		$date = \DateTime::createFromFormat($this->siteConfig["date_format"], $array["date"]);
+        $timestamp = $date->format('U');
+		$array["timestamp"] = $timestamp;
+		
         // Handle tags array
         if (isset($array['tags'])) {
             $tagArray = array();
             $tags = explode(",", $array['tags']);
-            
+            $tags = array_map('trim', $tags);
+			
             $array['tags'] = $tags;
+			
         }
         
         return $array;
+    }
+	
+	private function compilePageTemplate() {        
+        $tpl = "post";
+        if (isset($this->metadata['template'])) {
+            $tpl = $this->metadata['template'];
+        }
+
+        $vars = array(
+            "meta" => $this->metadata,
+            "content" => $this->content
+        );
+		
+		$Template = new Template($this->siteConfig, $this->logger);
+		$html = $Template->compileTemplate($tpl, $vars);
+        
+		$this->compiledTpl = $html;
     }
 }
 ?>

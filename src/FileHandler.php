@@ -8,7 +8,7 @@ class FileHandler {
         $this->logger = $logger;
     }
     
-    function loadFileFromPath($path) {
+    public function loadFileFromPath($path) {
         $data = file_get_contents($path);
         return $data;
     }
@@ -17,8 +17,8 @@ class FileHandler {
     Compile a page and write the output to files.
     Creates a directory for the page and copies all resources included in source dir.
     */
-    function writeSinglePage($pageData) {
-        $metadata = $pageData['page']->metadata;
+    public function writeSinglePage($Page) {
+        $metadata = $Page->metadata;
         
         $this->logger->info("Writing page: " . $metadata["slug"]);
         
@@ -35,7 +35,7 @@ class FileHandler {
         
         // Write page to file
         $fileName = "index.html";
-        file_put_contents($pagePath . $fileName, $pageData["compiledTpl"]);
+        file_put_contents($pagePath . $fileName, $Page->compiledTpl);
 
         // Copy all other resources from src to output
         $files = glob($this->siteConfig['page_path'] . '/' . $metadata["slug"] . '/*');
@@ -46,5 +46,17 @@ class FileHandler {
             }
         }
     }
+	
+	/*
+		archive
+		index
+		rss
+	*/
+	public function writeSiteFiles($fileName, $html) {
+		$outputPath = $this->siteConfig["build_path"] . '/';
+		$filePath = $outputPath . $fileName . ".html";
+		
+        file_put_contents($filePath, $html);
+	}
 }
 ?>

@@ -12,106 +12,56 @@ class Steady {
         $this->siteConfig = $CFG->siteConfig;
         $this->env = $CFG->env;
         
+		$this->loadAllPages();
+		
         $this->deepRefresh();
 
 	}
     
+	function loadAllPages() {
+		$dirs = glob($this->siteConfig['page_path'] . '/*', GLOB_ONLYDIR);
+		
+		foreach ($dirs as $pageDir) {
+			$Page = new Page($this->siteConfig, $this->logger);
+			$Page->loadPage(basename($pageDir));
+			
+			$this->pages[] = $Page;
+		}
+		
+		// Sort by newest first
+        usort($this->pages, function($a, $b) {
+            return $a->metadata['timestamp'] - $b->metadata['timestamp']; 
+        });
+	}
+	
     /*
         Full refresh of all pages
     */
     function deepRefresh() {
-        $dirs = glob($this->siteConfig['page_path'] . '/*', GLOB_ONLYDIR);
-        
-        $pagesArray = array();
-        
-        foreach ($dirs as $pageDir) {
-            $pageData = $this->processSinglePage($pageDir);
-            
-            $pagesArray[] = $pageData;
-
+       
+        foreach ($this->pages as $Page) {
             $FH = new FileHandler($this->siteConfig, $this->logger);
-            $FH->writeSinglePage($pageData);
+            $FH->writeSinglePage($Page);
         }
         
-        $archive = $this->buildArchive($pagesArray);
-        
-        #var_dump($archive);
+        $archiveHtml = $this->buildArchive();
+        $FH = new FileHandler($this->siteConfig, $this->logger);
+		$FH->writeSiteFiles("archive", $archiveHtml);
+		
     }
     
-    function buildArchive($pagesArray) {
-        // Sort by newest first
-        usort($pagesArray, function($a, $b) {
-            return $a['timestamp'] - $b['timestamp']; 
-        });
-        
-        
-        foreach($pagesArray as $page) {
-            var_dump($page);
-            return 0;
-            $pageVars = array(
-                "metadata" => $page["page"]->metadata,
-                "date" => date("Y-m-d", $page["timestamp"])
-                /*
-                TODO: don't put date here. convert date to timestamp and put it in metada when reading post.
-                Can also remove the date translation elsewhere.
-                */
-            );
-        }
-        
-        $vars = array(
-            "meta" => $Page->metadata,
-            "content" => $Page->content
-        );
-        $archive = $this->compileTemplate($tpl, $vars);
-        
-        return $archive;
-    }
-    
-    function processSinglePage($pageDir) {
-        $Page = new Page($this->siteConfig, $this->logger);
-        $Page->loadPage(basename($pageDir));
-        
-        $tpl = "post";
-        if (isset($Page->metadata['template'])) {
-            $tpl = $Page->metadata['template'];
+    function buildArchive() {
+		
+        $vars = array();
+        foreach($this->pages as $Page) {
+			$vars["posts"][] = $Page->metadata;
         }
 
-        $vars = array(
-            "meta" => $Page->metadata,
-            "content" => $Page->content
-        );
-        $html = $this->compileTemplate($tpl, $vars);
+		$Template = new Template($this->siteConfig, $this->logger);
+		$archiveHtml = $Template->compileTemplate("archive", $vars);
         
-        $date = \DateTime::createFromFormat($this->siteConfig["date_format"], $Page->metadata['date']);
-        $timestamp = $date->format('U');
-        
-        $ret = array(
-            "page" => $Page,
-            "timestamp" => $timestamp,
-            "compiledTpl" => $html
-        );
-        
-        return $ret;
+        return $archiveHtml;
     }
-    
-	
-	function compileTemplate($template, $vars) {
-		$config = array(
-			 "tpl_dir"       => $this->siteConfig['template_path'] . '/',
-			 "cache_dir"     => "vendor/rain/raintpl/cache/",
-             "auto_escape" => false
-		);
-		
-		$TPL = new \Rain\Tpl;
-		$TPL::configure($config);
-		
-		foreach ($vars as $key => $val) {
-			$TPL->assign($key, $val);
-		}
-		
-		return $TPL->draw($template, TRUE);
-	}
-    
-    
+
 }
 ?>
