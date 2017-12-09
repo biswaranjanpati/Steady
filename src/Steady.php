@@ -33,6 +33,38 @@ class Steady {
             $FH->writeSinglePage($pageData);
         }
         
+        $archive = $this->buildArchive($pagesArray);
+        
+        #var_dump($archive);
+    }
+    
+    function buildArchive($pagesArray) {
+        // Sort by newest first
+        usort($pagesArray, function($a, $b) {
+            return $a['timestamp'] - $b['timestamp']; 
+        });
+        
+        
+        foreach($pagesArray as $page) {
+            var_dump($page);
+            return 0;
+            $pageVars = array(
+                "metadata" => $page["page"]->metadata,
+                "date" => date("Y-m-d", $page["timestamp"])
+                /*
+                TODO: don't put date here. convert date to timestamp and put it in metada when reading post.
+                Can also remove the date translation elsewhere.
+                */
+            );
+        }
+        
+        $vars = array(
+            "meta" => $Page->metadata,
+            "content" => $Page->content
+        );
+        $archive = $this->compileTemplate($tpl, $vars);
+        
+        return $archive;
     }
     
     function processSinglePage($pageDir) {
@@ -54,10 +86,9 @@ class Steady {
         $timestamp = $date->format('U');
         
         $ret = array(
-            "slug" => $Page->metadata['slug'],
-            "date" => $Page->metadata['date'],
+            "page" => $Page,
             "timestamp" => $timestamp,
-            "html" => $html
+            "compiledTpl" => $html
         );
         
         return $ret;

@@ -18,11 +18,13 @@ class FileHandler {
     Creates a directory for the page and copies all resources included in source dir.
     */
     function writeSinglePage($pageData) {
-        $this->logger->info("Writing page: " . $pageData['slug']);
+        $metadata = $pageData['page']->metadata;
+        
+        $this->logger->info("Writing page: " . $metadata["slug"]);
         
         // Create output directories for page
         $outputPath = $this->siteConfig["build_path"] . '/pages/';
-        $pagePath = $outputPath . $pageData["slug"] . '/';
+        $pagePath = $outputPath . $metadata["slug"] . '/';
         
         if(!is_dir($outputPath)){
             mkdir($outputPath, 0755);
@@ -33,10 +35,10 @@ class FileHandler {
         
         // Write page to file
         $fileName = "index.html";
-        file_put_contents($pagePath . $fileName, $pageData["html"]);
+        file_put_contents($pagePath . $fileName, $pageData["compiledTpl"]);
 
         // Copy all other resources from src to output
-        $files = glob($this->siteConfig['page_path'] . '/' . $pageData["slug"] . '/*');
+        $files = glob($this->siteConfig['page_path'] . '/' . $metadata["slug"] . '/*');
         foreach ($files as $filePath) {
             $baseName = basename($filePath);
             if ($baseName != "page.md") {

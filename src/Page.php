@@ -2,13 +2,13 @@
 namespace Steady;
 
 class Page {
-    
 	function __construct($siteConfig, $logger) {
         $this->siteConfig = $siteConfig;
         $this->logger = $logger;
 	}
     
     function loadPage($pageDir) {
+        
         $FH = new FileHandler($this->siteConfig, $this->logger);
         $data = $FH->loadFileFromPath($this->siteConfig['page_path'] . '/' . $pageDir . '/page.md');
         
