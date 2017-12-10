@@ -13,7 +13,7 @@ if (defined('STDIN')) {
     }
 } else {
     if (isset($_GET["config"])) {
-        $configPath = $_GET['type'];
+        $configPath = $_GET['config'];
     }
 }
 
