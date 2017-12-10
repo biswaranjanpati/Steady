@@ -2,17 +2,17 @@
 namespace Steady;
 
 class Configuration {
-	function __construct($logger) {
+	function __construct($configPath, $logger) {
         $this->logger = $logger;
-        $config = $this->loadConfigFile("config.ini");
+        $config = $this->loadConfigFile($configPath);
 
         $this->env = $config['env'];
         $this->siteConfig = $config[$this->env];
 	}
     
-	function loadConfigFile($file = "config.ini") {
+	function loadConfigFile($file) {
         if (!file_exists($file)) {
-            $this->logger->error("config.ini file not found");
+            $this->logger->error("Config file not found: " . $file);
         }
         
         $this->logger->message("Loading config: " . $file);

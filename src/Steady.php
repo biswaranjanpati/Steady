@@ -3,12 +3,12 @@ namespace Steady;
 
 class Steady {
     
-	function __construct() {
+	function __construct($configPath) {
 		$this->logger = new Logger();
         
         $this->logger->message("Welcome to Steady");
         
-        $CFG = new Configuration($this->logger);
+        $CFG = new Configuration($configPath, $this->logger);
         $this->siteConfig = $CFG->siteConfig;
         $this->env = $CFG->env;
         
