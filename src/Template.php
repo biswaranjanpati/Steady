@@ -5,23 +5,22 @@ class Template {
 	function __construct($siteConfig, $logger) {
         $this->siteConfig = $siteConfig;
         $this->logger = $logger;
-	}
+        
+        $loader = new \Twig_Loader_Filesystem($this->siteConfig['template_path'] . '/');
+        $this->twig = new \Twig_Environment($loader, array(
+            'cache' => false
+        ));
+
+    }
+
+    public function compileTemplate($template, $vars) {
+        
+        $template = $template . ".twig";
+        return $this->twig->render($template, $vars);
+    }    
     
-	public function compileTemplate($template, $vars) {
-		$config = array(
-			 "tpl_dir"       => $this->siteConfig['template_path'] . '/',
-			 "cache_dir"     => "vendor/rain/raintpl/cache/",
-             "auto_escape" => false
-		);
-		
-		$TPL = new \Rain\Tpl;
-		$TPL::configure($config);
-		
-		foreach ($vars as $key => $val) {
-			$TPL->assign($key, $val);
-		}
-		
-		return $TPL->draw($template, TRUE);
-	}
+    //TODO: make a custom extension that allows truncate by p tag
+    // https://stackoverflow.com/questions/19491989/limit-string-twig
+
 }
 ?>

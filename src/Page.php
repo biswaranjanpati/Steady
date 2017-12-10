@@ -8,7 +8,6 @@ class Page {
 	}
     
     public function loadPage($pageDir) {
-        
         $FH = new FileHandler($this->siteConfig, $this->logger);
         $data = $FH->loadFileFromPath($this->siteConfig['page_path'] . '/' . $pageDir . '/page.md');
         
@@ -18,6 +17,16 @@ class Page {
         $this->metadata["slug"] = $pageDir;
         
         $parser = new \Michelf\MarkdownExtra;
+        // Function to convert relative URLs to absolute ones.
+        $parser->url_filter_func = function ($url) {
+            $absoluteUrl = strpos($url, "http://") === 0 || strpos($url, "https://") === 0;
+            if (!$absoluteUrl) {
+                $baseUrl = $this->siteConfig["base_url"];
+                $url = $baseUrl . '/pages/' . $this->metadata["slug"] . '/' . $url; //[base_path]/pages/[page_folder]/[resource]
+            }
+            return $url;
+        };
+        //var_dump(get_defined_vars ());
         $this->content = $parser->transform($rawContent);
 		
 		$this->compilePageTemplate();

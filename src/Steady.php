@@ -44,21 +44,40 @@ class Steady {
             $FH->writeSinglePage($Page);
         }
         
-        $archiveHtml = $this->buildArchive();
+        $this->logger->info("Writing page: archive.html");
+        $archiveHtml = $this->buildArchivePage();
         $FH = new FileHandler($this->siteConfig, $this->logger);
 		$FH->writeSiteFiles("archive", $archiveHtml);
 		
+        $this->logger->info("Writing page: index.html");
+        $indexHtml = $this->buildIndexPage();
+        $FH = new FileHandler($this->siteConfig, $this->logger);
+		$FH->writeSiteFiles("index", $indexHtml);
     }
     
-    function buildArchive() {
+    function buildIndexPage() {
+        $vars = array();
+        foreach($this->pages as $Page) {
+			$vars["posts"][] = $Page;
+        }
+
+		$Template = new Template($this->siteConfig, $this->logger);
+		$indexHtml = $Template->compileTemplate("index", $vars);
+        
+        return $indexHtml;
+    }
+    
+    function buildArchivePage() {
 		
         $vars = array();
         foreach($this->pages as $Page) {
-			$vars["posts"][] = $Page->metadata;
+			$vars["posts"][] = $Page;
         }
 
 		$Template = new Template($this->siteConfig, $this->logger);
 		$archiveHtml = $Template->compileTemplate("archive", $vars);
+        
+        echo $archiveHtml;
         
         return $archiveHtml;
     }
