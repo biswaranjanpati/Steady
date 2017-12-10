@@ -11,6 +11,11 @@ class Configuration {
 	}
     
 	function loadConfigFile($file) {
+        
+        if (substr_compare($file, "config.ini", -10) !== 0) {
+            $this->logger->error("Config file must be named config.ini");
+        }
+
         if (!file_exists($file)) {
             $this->logger->error("Config file not found: " . $file);
         }
