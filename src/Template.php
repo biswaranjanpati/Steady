@@ -12,7 +12,10 @@ class Template {
         ));
 
     }
-
+    
+    /*
+        Renders the template given the name and variables to put into it.
+    */
     public function compileTemplate($template, $vars) {
         
         $template = $template . ".twig";

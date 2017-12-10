@@ -18,6 +18,9 @@ class Steady {
 
 	}
     
+    /*
+        Loads all pages from the page_path and sorts them by newest first.
+    */
 	function loadAllPages() {
 		$dirs = glob($this->siteConfig['page_path'] . '/*', GLOB_ONLYDIR);
 		
@@ -35,7 +38,7 @@ class Steady {
 	}
 	
     /*
-        Full refresh of all pages
+        Writes all pages including index and archive to output directory.
     */
     function deepRefresh() {
        
@@ -55,6 +58,9 @@ class Steady {
 		$FH->writeSiteFiles("index", $indexHtml);
     }
     
+    /*
+        returns the html for index.html
+    */
     function buildIndexPage() {
         $vars = array();
         foreach($this->pages as $Page) {
@@ -67,6 +73,9 @@ class Steady {
         return $indexHtml;
     }
     
+    /*
+        returns the html for archive.html
+    */
     function buildArchivePage() {
 		
         $vars = array();
@@ -76,8 +85,6 @@ class Steady {
 
 		$Template = new Template($this->siteConfig, $this->logger);
 		$archiveHtml = $Template->compileTemplate("archive", $vars);
-        
-        echo $archiveHtml;
         
         return $archiveHtml;
     }

@@ -7,6 +7,9 @@ class Page {
         $this->logger = $logger;
 	}
     
+    /*
+        Loads a page from it's file.
+    */
     public function loadPage($pageDir) {
         $FH = new FileHandler($this->siteConfig, $this->logger);
         $data = $FH->loadFileFromPath($this->siteConfig['page_path'] . '/' . $pageDir . '/page.md');
@@ -75,6 +78,9 @@ class Page {
         return $array;
     }
 	
+    /*
+        Returns the HTML of the page after it's passed the template engine.
+    */
 	private function compilePageTemplate() {        
         $tpl = "post";
         if (isset($this->metadata['template'])) {
