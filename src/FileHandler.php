@@ -20,8 +20,6 @@ class FileHandler {
     public function writeSinglePage($Page) {
         $metadata = $Page->metadata;
         
-        $this->logger->info("Writing page: " . $metadata["slug"]);
-        
         // Create output directories for page
         $outputPath = $this->siteConfig["build_path"] . '/pages/';
         $pagePath = $outputPath . $metadata["slug"] . '/';

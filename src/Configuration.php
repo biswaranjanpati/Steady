@@ -12,16 +12,28 @@ class Configuration {
     
 	function loadConfigFile($file = "config.ini") {
         if (!file_exists($file)) {
-            throw new \Exception('Config file does not exist!');
+            $this->logger->error("config.ini file not found");
         }
         
-        $this->logger->info("Loading config: " . $file);
+        $this->logger->message("Loading config: " . $file);
         
         $config = parse_ini_file($file, true);
         
-        /*
-        TODO: verify all paths exist and are writable
-        */
+        foreach ($config[$config["env"]] as $key => $value) {
+            switch($key) {
+                case "page_path":
+                case "template_path":
+                    if(!is_readable($value)) {
+                        $this->logger->error("Path unreadable: " . $key);
+                    }
+                    break;
+                case "build_path":
+                    if(!is_writable($value)) {
+                        $this->logger->error("Path unwritable: " . $key);
+                    }
+                    break;
+            }
+        }
         
         return $config;
 	}

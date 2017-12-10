@@ -11,6 +11,8 @@ class Page {
         Loads a page from it's file.
     */
     public function loadPage($pageDir) {
+        $this->logger->message("Parsing page: " . $pageDir);
+        
         $FH = new FileHandler($this->siteConfig, $this->logger);
         $data = $FH->loadFileFromPath($this->siteConfig['page_path'] . '/' . $pageDir . '/page.md');
         
@@ -51,17 +53,19 @@ class Page {
         $array = array();
         $lines = explode("\n", $rawMetadata);
 
-        /*
-            TODO: verify template exists
-            TODO: verify date is in right format
-        */
-        
         foreach ($lines as $line) {
             list($key, $value) = explode(":", $line, 2);
             $array[strtolower(trim($key))] = trim($value);
         }
         
-		$date = \DateTime::createFromFormat($this->siteConfig["date_format"], $array["date"]);
+        $date = \DateTime::createFromFormat($this->siteConfig["date_format"], $array["date"]);
+        
+        if (strtolower($date->format($this->siteConfig["date_format"])) !== strtolower($array["date"])) {
+            $this->logger->info("Expected format: " . date($this->siteConfig["date_format"]));
+            $this->logger->info("Recieved format: " . $array["date"]);
+            $this->logger->error("Date format does not match format specified in configuration");
+        }
+        
         $timestamp = $date->format('U');
 		$array["timestamp"] = $timestamp;
 		

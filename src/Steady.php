@@ -6,7 +6,7 @@ class Steady {
 	function __construct() {
 		$this->logger = new Logger();
         
-        $this->logger->info("Welcome to Steady");
+        $this->logger->message("Welcome to Steady");
         
         $CFG = new Configuration($this->logger);
         $this->siteConfig = $CFG->siteConfig;
@@ -47,15 +47,18 @@ class Steady {
             $FH->writeSinglePage($Page);
         }
         
-        $this->logger->info("Writing page: archive.html");
+        $this->logger->message("Writing page: archive.html");
         $archiveHtml = $this->buildArchivePage();
         $FH = new FileHandler($this->siteConfig, $this->logger);
 		$FH->writeSiteFiles("archive", $archiveHtml);
 		
-        $this->logger->info("Writing page: index.html");
+        $this->logger->message("Writing page: index.html");
         $indexHtml = $this->buildIndexPage();
         $FH = new FileHandler($this->siteConfig, $this->logger);
 		$FH->writeSiteFiles("index", $indexHtml);
+        
+        $this->logger->message("Done.");
+        $this->logger->message("Output directory: " . $this->siteConfig["build_path"]);
     }
     
     /*
