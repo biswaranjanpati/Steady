@@ -54,8 +54,9 @@ class Steady {
 		
         $this->logger->message("Writing page: index.html");
         $indexHtml = $this->buildIndexPage();
-        $FH = new FileHandler($this->siteConfig, $this->logger);
 		$FH->writeSiteFiles("index", $indexHtml);
+        
+        $FH->copyTemplateResources();
         
         $this->logger->message("Done.");
         $this->logger->message("Output directory: " . $this->siteConfig["build_path"]);

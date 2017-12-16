@@ -56,5 +56,28 @@ class FileHandler {
 		
         file_put_contents($filePath, $html);
 	}
+    
+    /*
+        Copy all template resources (css, images, js) to output folder
+    */
+    public function copyTemplateResources() {
+        $folders = ["css", "js", "images"];
+        
+        foreach ($folders as $folder) {
+            $srcPath = $this->siteConfig["template_path"] . '/' . $folder;
+            $outputPath = $this->siteConfig["build_path"] . '/' . $folder . '/';
+            
+            if(!is_dir($outputPath)){
+                mkdir($outputPath, 0755);
+            }
+            
+            // Copy all resources from src to output
+            $files = glob($srcPath . '/*');
+            foreach ($files as $filePath) {
+                $baseName = basename($filePath);
+                copy($filePath, $outputPath . $baseName);
+            }
+        }
+    }
 }
 ?>
