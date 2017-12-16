@@ -24,7 +24,7 @@ class Page {
         $parser = new \Michelf\MarkdownExtra;
         // Function to convert relative URLs to absolute ones.
         $parser->url_filter_func = function ($url) {
-            $absoluteUrl = strpos($url, "http://") === 0 || strpos($url, "https://") === 0;
+            $absoluteUrl = preg_match('/.{3,5}:/', $url);
             if (!$absoluteUrl) {
                 $baseUrl = $this->siteConfig["base_url"];
                 $url = $baseUrl . '/pages/' . $this->metadata["slug"] . '/' . $url; //[base_path]/pages/[page_folder]/[resource]
@@ -62,7 +62,7 @@ class Page {
         
         if (strtolower($date->format($this->siteConfig["date_format"])) !== strtolower($array["date"])) {
             $this->logger->info("Expected format: " . date($this->siteConfig["date_format"]));
-            $this->logger->info("Recieved format: " . $array["date"]);
+            $this->logger->info("Received format: " . $array["date"]);
             $this->logger->error("Date format does not match format specified in configuration");
         }
         
