@@ -10,6 +10,7 @@ class Template {
         $this->twig = new \Twig_Environment($loader, array(
             'cache' => false
         ));
+        $this->twig->addExtension(new TwigTruncatePExtension());
 
     }
     

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "6fc75936291044478aab6cd108ebecba",
+    "content-hash": "19608df2986475fe6b158231b015eb18",
     "packages": [
         {
             "name": "michelf/php-markdown",
@@ -56,47 +56,6 @@
                 "markdown"
             ],
             "time": "2016-10-29T18:58:20+00:00"
-        },
-        {
-            "name": "rain/raintpl",
-            "version": "3.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/rainphp/raintpl3.git",
-                "reference": "5fc655b59cb3d541755116a09fc4c0206b301923"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/rainphp/raintpl3/zipball/5fc655b59cb3d541755116a09fc4c0206b301923",
-                "reference": "5fc655b59cb3d541755116a09fc4c0206b301923",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Rain": "library/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Federico Ulfo",
-                    "email": "rainelemental@gmail.com",
-                    "homepage": "http://github.com/rainphp"
-                },
-                {
-                    "name": "Rain Community"
-                }
-            ],
-            "description": "easy and fast template engine",
-            "homepage": "http://raintpl.com",
-            "time": "2013-11-10T18:36:47+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",

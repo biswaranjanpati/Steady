@@ -1,6 +1,5 @@
 {
     "require": {
-        "rain/raintpl": "^3.1",
         "michelf/php-markdown": "^1.7",
         "twig/twig": "^2.4"
     },
