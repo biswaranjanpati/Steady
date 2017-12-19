@@ -10,7 +10,7 @@ class Template {
         $this->twig = new \Twig_Environment($loader, array(
             'cache' => false
         ));
-        $this->twig->addExtension(new TwigTruncatePExtension());
+        $this->twig->addExtension(new \Sachleen\Twig\TwigTruncatePExtension());
 
     }
     
@@ -28,9 +28,5 @@ class Template {
         }
         return $this->twig->render($template, $vars);
     }
-
-    //TODO: make a custom extension that allows truncate by p tag
-    // https://stackoverflow.com/questions/19491989/limit-string-twig
-
 }
 ?>

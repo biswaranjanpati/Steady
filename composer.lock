@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "19608df2986475fe6b158231b015eb18",
+    "content-hash": "cc4c681f7fae99c1f45c3790fc12d76d",
     "packages": [
         {
             "name": "michelf/php-markdown",
@@ -56,6 +56,43 @@
                 "markdown"
             ],
             "time": "2016-10-29T18:58:20+00:00"
+        },
+        {
+            "name": "sachleen/twig-truncatep",
+            "version": "1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sachleen/Twig-TruncateP.git",
+                "reference": "fbae2587ffef66d573f7fafc69e14556f3a974d2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sachleen/Twig-TruncateP/zipball/fbae2587ffef66d573f7fafc69e14556f3a974d2",
+                "reference": "fbae2587ffef66d573f7fafc69e14556f3a974d2",
+                "shasum": ""
+            },
+            "require": {
+                "twig/twig": "~2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Sachleen\\Twig\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sachleen Sandhu",
+                    "email": "sachleen.sandhu@gmail.com",
+                    "homepage": "http://sachleen.com"
+                }
+            ],
+            "description": "A Twig Extension filter to truncate html by number of p tags",
+            "time": "2017-12-19T19:21:49+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
