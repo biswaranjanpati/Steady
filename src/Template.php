@@ -26,6 +26,8 @@ class Template {
             $this->logger->info("Template file must exist at " . $expectedPath);
             exit(0);
         }
+        
+        $vars['BASE_URL'] = $this->siteConfig['base_url'];
         return $this->twig->render($template, $vars);
     }
 }
