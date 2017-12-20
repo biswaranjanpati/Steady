@@ -33,7 +33,7 @@ class Steady {
 		
 		// Sort by newest first
         usort($this->pages, function($a, $b) {
-            return $a->metadata['timestamp'] - $b->metadata['timestamp']; 
+            return $b->metadata['timestamp'] - $a->metadata['timestamp']; 
         });
 	}
 	
