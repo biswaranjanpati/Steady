@@ -27,6 +27,7 @@ class FileHandler {
         if(!is_dir($outputPath)){
             mkdir($outputPath, 0755);
         }
+        $this->recursiveRemove($pagePath);
         if(!is_dir($pagePath)){
             mkdir($pagePath, 0755);
         }
@@ -67,6 +68,7 @@ class FileHandler {
             $srcPath = $this->siteConfig["template_path"] . '/' . $folder;
             $outputPath = $this->siteConfig["build_path"] . '/' . $folder . '/';
             
+            $this->recursiveRemove($outputPath);
             if(!is_dir($outputPath)){
                 mkdir($outputPath, 0755);
             }
@@ -78,6 +80,23 @@ class FileHandler {
                 copy($filePath, $outputPath . $baseName);
             }
         }
+    }
+
+    /*
+        Delete all files/folders in a directory
+        https://stackoverflow.com/a/13440766/219118
+    */
+    private function recursiveRemove($dir) {
+        if(!is_dir($dir)) return 0;
+        $structure = glob(rtrim($dir, "/").'/*');
+        
+        if (is_array($structure)) {
+            foreach($structure as $file) {
+                if (is_dir($file)) recursiveRemove($file);
+                elseif (is_file($file)) unlink($file);
+            }
+        }
+        rmdir($dir);
     }
 }
 ?>
