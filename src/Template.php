@@ -19,11 +19,11 @@ class Template {
     */
     public function compileTemplate($template, $vars) {
         
-        $template = $template . ".twig";
+        $template = $template;
         $expectedPath = $this->siteConfig['template_path'] . '/' . $template;
         if (!file_exists($expectedPath)) {
-            $this->logger->error("Template does not exist.");
             $this->logger->info("Template file must exist at " . $expectedPath);
+            $this->logger->error("Template [$template] does not exist.");
             exit(0);
         }
         

@@ -53,7 +53,7 @@ class FileHandler {
 	*/
 	public function writeSiteFiles($fileName, $html) {
 		$outputPath = $this->siteConfig["build_path"] . '/';
-		$filePath = $outputPath . $fileName . ".html";
+		$filePath = $outputPath . $fileName;
 		
         file_put_contents($filePath, $html);
 	}

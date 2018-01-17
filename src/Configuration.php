@@ -8,6 +8,7 @@ class Configuration {
 
         $this->env = $config['env'];
         $this->siteConfig = $config[$this->env];
+        $this->siteConfig["staticPages"] = $config["staticPages"]["site_page"];
 	}
     
 	function loadConfigFile($file) {

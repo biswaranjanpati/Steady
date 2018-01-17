@@ -47,14 +47,7 @@ class Steady {
             $FH->writeSinglePage($Page);
         }
         
-        $this->logger->message("Writing page: archive.html");
-        $archiveHtml = $this->buildArchivePage();
-        $FH = new FileHandler($this->siteConfig, $this->logger);
-		$FH->writeSiteFiles("archive", $archiveHtml);
-		
-        $this->logger->message("Writing page: index.html");
-        $indexHtml = $this->buildIndexPage();
-		$FH->writeSiteFiles("index", $indexHtml);
+        $this->buildStaticPages();
         
         $FH->copyTemplateResources();
         
@@ -63,34 +56,21 @@ class Steady {
     }
     
     /*
-        returns the html for index.html
+        Builds static pages specified in config.ini
     */
-    function buildIndexPage() {
+    function buildStaticPages() {
         $vars = array();
         foreach($this->pages as $Page) {
 			$vars["posts"][] = $Page;
         }
-
-		$Template = new Template($this->siteConfig, $this->logger);
-		$indexHtml = $Template->compileTemplate("index", $vars);
         
-        return $indexHtml;
-    }
-    
-    /*
-        returns the html for archive.html
-    */
-    function buildArchivePage() {
-		
-        $vars = array();
-        foreach($this->pages as $Page) {
-			$vars["posts"][] = $Page;
+        foreach($this->siteConfig["staticPages"] as $pageName) {
+            $Template = new Template($this->siteConfig, $this->logger);
+            $pageHTML = $Template->compileTemplate($pageName, $vars);
+
+            $FH = new FileHandler($this->siteConfig, $this->logger);
+            $FH->writeSiteFiles($pageName, $pageHTML);   
         }
-
-		$Template = new Template($this->siteConfig, $this->logger);
-		$archiveHtml = $Template->compileTemplate("archive", $vars);
-        
-        return $archiveHtml;
     }
 
 }
