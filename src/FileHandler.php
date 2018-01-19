@@ -50,6 +50,7 @@ class FileHandler {
             // Copy all resources from src to output
             $files = glob($srcPath . '/*');
             
+            // TODO: implement recursive copy
             foreach ($files as $filePath) {
                 if(is_file($filePath)) {
                     $baseName = basename($filePath);
