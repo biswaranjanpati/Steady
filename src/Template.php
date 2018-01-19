@@ -6,7 +6,9 @@ class Template {
         $this->siteConfig = $siteConfig;
         $this->logger = $logger;
         
-        $loader = new \Twig_Loader_Filesystem($this->siteConfig['template_path'] . '/');
+        $path = FileHandler::join_paths($this->siteConfig["projectPath"], $this->siteConfig['template_path']);
+        
+        $loader = new \Twig_Loader_Filesystem($path);
         $this->twig = new \Twig_Environment($loader, array(
             'cache' => false
         ));
@@ -20,11 +22,12 @@ class Template {
     public function compileTemplate($template, $vars) {
         
         $template = $template;
-        $expectedPath = $this->siteConfig['template_path'] . '/' . $template;
+        
+        $expectedPath = FileHandler::join_paths($this->siteConfig["projectPath"], $this->siteConfig['template_path'], $template);
+
         if (!file_exists($expectedPath)) {
             $this->logger->info("Template file must exist at " . $expectedPath);
             $this->logger->error("Template [$template] does not exist.");
-            exit(0);
         }
         
         $vars['BASE_URL'] = $this->siteConfig['base_url'];

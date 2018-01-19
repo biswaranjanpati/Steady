@@ -4,14 +4,19 @@ namespace Steady;
 class Configuration {
 	function __construct($configPath, $logger) {
         $this->logger = $logger;
-        $config = $this->loadConfigFile($configPath);
-
+        
+        $projectPath = dirname(realpath($configPath));
+        $this->logger->message("Project Path: " . $projectPath);
+        
+        $config = $this->loadConfigFile($projectPath);
+        
         $this->env = $config['env'];
         $this->siteConfig = $config[$this->env];
-        $this->siteConfig["staticPages"] = $config["staticPages"]["site_page"];
+        $this->siteConfig["projectPath"] = $projectPath;
 	}
     
-	function loadConfigFile($file) {
+	function loadConfigFile($projectPath) {
+        $file = FileHandler::join_paths($projectPath, 'config.ini');
         
         if (substr_compare($file, "config.ini", -10) !== 0) {
             $this->logger->error("Config file must be named config.ini");
@@ -21,7 +26,8 @@ class Configuration {
             $this->logger->error("Config file not found: " . $file);
         }
         
-        $this->logger->message("Loading config: " . $file);
+        
+        $this->logger->message("Loading config.ini");
         
         $config = parse_ini_file($file, true);
         
@@ -29,13 +35,17 @@ class Configuration {
             switch($key) {
                 case "page_path":
                 case "template_path":
-                    if(!is_readable($value)) {
+                    $path = FileHandler::join_paths($projectPath, $value);
+                    if(!is_readable($path)) {
+                        $this->logger->message("Checking path: " . $path);
                         $this->logger->error("Path unreadable: " . $key);
                     }
                     break;
                 case "build_path":
-                    if(!is_writable($value)) {
-                        $this->logger->error("Path unwritable: " . $key);
+                    $path = FileHandler::join_paths($projectPath, $value);
+                    if(!is_writable($path)) {
+                        $this->logger->message("Checking path: " . $path);
+                        $this->logger->error("Path unreadable: " . $key);
                     }
                     break;
             }

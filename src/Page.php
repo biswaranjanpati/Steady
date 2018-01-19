@@ -10,31 +10,34 @@ class Page {
     /*
         Loads a page from it's file.
     */
-    public function loadPage($pageDir) {
-        $this->logger->message("Parsing page: " . $pageDir);
+    public function loadPage($page, $parentFolder) {
+        $this->logger->message("Parsing page: " . basename($page));
         
         $FH = new FileHandler($this->siteConfig, $this->logger);
-        $data = $FH->loadFileFromPath($this->siteConfig['page_path'] . '/' . $pageDir . '/page.md');
+        $data = $FH->loadFileFromPath($page);
         
         list($rawMetadata, $rawContent) = $this->splitDocument($data);
         
         $this->metadata = $this->parsePageMetaData($rawMetadata);
-        $this->metadata["slug"] = $pageDir;
+        if (!isset($this->metadata["slug"])) {
+            $this->metadata["slug"] = pathinfo($page, PATHINFO_FILENAME);
+        }
+        $this->metadata["parentFolder"] = $parentFolder;
         
         $parser = new \Michelf\MarkdownExtra;
+        
         // Function to convert relative URLs to absolute ones.
         $parser->url_filter_func = function ($url) {
             $absoluteUrl = preg_match('/.{3,5}:/', $url);
             if (!$absoluteUrl) {
-                $baseUrl = $this->siteConfig["base_url"];
-                $url = $baseUrl . '/pages/' . $this->metadata["slug"] . '/' . $url; //[base_path]/pages/[page_folder]/[resource]
+                // TODO: join_paths replaces // with / so it messes up http://. fix it 
+                #$url = FileHandler::join_paths($this->siteConfig["base_url"], $url);
+                $url = $this->siteConfig["base_url"] . '/' . $url;
             }
             return $url;
         };
-        //var_dump(get_defined_vars ());
+        
         $this->content = $parser->transform($rawContent);
-		
-		$this->compilePageTemplate();
     }
     
     /*
@@ -85,16 +88,24 @@ class Page {
     /*
         Returns the HTML of the page after it's passed the template engine.
     */
-	private function compilePageTemplate() {        
-        $tpl = "post";
+	public function compilePageTemplate() {
+        $extraVars = array();
+        foreach (func_get_args() as $arg) {
+            if ($arg !== '') { $extraVars[] = $arg; }
+        }
+        
+        $tpl = "post.tpl";
         if (isset($this->metadata['template'])) {
             $tpl = $this->metadata['template'];
         }
-
+        
+        
         $vars = array(
             "meta" => $this->metadata,
-            "content" => $this->content
+            "content" => $this->content,
+            "posts" => $extraVars[0]
         );
+        
 		
 		$Template = new Template($this->siteConfig, $this->logger);
 		$html = $Template->compileTemplate($tpl, $vars);

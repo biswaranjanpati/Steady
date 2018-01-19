@@ -20,64 +20,44 @@ class FileHandler {
     public function writeSinglePage($Page) {
         $metadata = $Page->metadata;
         
-        // Create output directories for page
-        $outputPath = $this->siteConfig["build_path"] . '/pages/';
-        $pagePath = $outputPath . $metadata["slug"] . '/';
+        $outputPath = FileHandler::join_paths($this->siteConfig["projectPath"], "_site", $Page->metadata["parentFolder"]);
+        $pagePath = FileHandler::join_paths($outputPath, $metadata["slug"] . ".html");
         
         if(!is_dir($outputPath)){
             mkdir($outputPath, 0755);
         }
-        $this->recursiveRemove($pagePath);
-        if(!is_dir($pagePath)){
-            mkdir($pagePath, 0755);
-        }
         
         // Write page to file
-        $fileName = "index.html";
-        file_put_contents($pagePath . $fileName, $Page->compiledTpl);
-
-        // Copy all other resources from src to output
-        $files = glob($this->siteConfig['page_path'] . '/' . $metadata["slug"] . '/*');
-        foreach ($files as $filePath) {
-            $baseName = basename($filePath);
-            if ($baseName != "page.md") {
-                copy($filePath, $pagePath . $baseName);
-            }
-        }
+        file_put_contents($pagePath, $Page->compiledTpl);
     }
-	
-	/*
-		archive
-		index
-		rss
-	*/
-	public function writeSiteFiles($fileName, $html) {
-		$outputPath = $this->siteConfig["build_path"] . '/';
-		$filePath = $outputPath . $fileName;
-		
-        file_put_contents($filePath, $html);
-	}
-    
+
     /*
-        Copy all template resources (css, images, js) to output folder
+        Copy all assets folders defined in config.ini
     */
-    public function copyTemplateResources() {
-        $folders = ["css", "js", "images"];
+    public function copyAssets() {
+        $folders = $this->siteConfig["assets"];
         
         foreach ($folders as $folder) {
-            $srcPath = $this->siteConfig["template_path"] . '/' . $folder;
-            $outputPath = $this->siteConfig["build_path"] . '/' . $folder . '/';
+            $this->logger->message("Copying assets in: " . $folder);
+            $srcPath =  FileHandler::join_paths($this->siteConfig["projectPath"], $folder);
+            $outputPath = FileHandler::join_paths($this->siteConfig["projectPath"], "_site", $folder);
             
-            $this->recursiveRemove($outputPath);
+            self::recursiveRemove($outputPath);
             if(!is_dir($outputPath)){
-                mkdir($outputPath, 0755);
+                mkdir($outputPath, 0755, true);
             }
             
             // Copy all resources from src to output
             $files = glob($srcPath . '/*');
+            
             foreach ($files as $filePath) {
-                $baseName = basename($filePath);
-                copy($filePath, $outputPath . $baseName);
+                if(is_file($filePath)) {
+                    $baseName = basename($filePath);
+                    copy($filePath, FileHandler::join_paths($outputPath, $baseName));
+                } else {
+                    $this->logger->info("All assets must be defined in config.ini.");
+                    $this->logger->info("Ignoring directory: " . $filePath);
+                }
             }
         }
     }
@@ -86,17 +66,31 @@ class FileHandler {
         Delete all files/folders in a directory
         https://stackoverflow.com/a/13440766/219118
     */
-    private function recursiveRemove($dir) {
+    private static function recursiveRemove($dir) {
         if(!is_dir($dir)) return 0;
         $structure = glob(rtrim($dir, "/").'/*');
         
         if (is_array($structure)) {
             foreach($structure as $file) {
-                if (is_dir($file)) recursiveRemove($file);
+                if (is_dir($file)) self::recursiveRemove($file);
                 elseif (is_file($file)) unlink($file);
             }
         }
         rmdir($dir);
+    }
+    
+    /*
+        Combines paths
+        https://stackoverflow.com/a/15575293
+    */
+    public static function join_paths() {
+        $paths = array();
+
+        foreach (func_get_args() as $arg) {
+            if ($arg !== '') { $paths[] = $arg; }
+        }
+
+        return preg_replace('#/+#','/',join('/', $paths));
     }
 }
 ?>

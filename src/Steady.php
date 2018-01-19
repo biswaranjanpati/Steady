@@ -12,25 +12,47 @@ class Steady {
         $this->siteConfig = $CFG->siteConfig;
         $this->env = $CFG->env;
         
-		$this->loadAllPages();
+		$this->loadAllContent();
 		
         $this->deepRefresh();
 
 	}
     
+    function loadAllContent() {
+        // Parse all the posts and pages defined in config.ini content section
+        foreach($this->siteConfig["content"] as $contentDir) {
+            $this->loadContent($contentDir);
+        }
+        
+        // Get only the posts to be able to pass them on to the templates
+        $posts = [];
+        foreach($this->pages as $Page) {
+            if($Page->metadata["parentFolder"] == "posts") {
+                $posts[] = $Page;
+            }
+        }
+        
+        // compile template for all pages
+        foreach($this->pages as $Page) {
+            $Page->compilePageTemplate($posts);
+        }
+    }
+    
     /*
-        Loads all pages from the page_path and sorts them by newest first.
+        Loads all content from the content array in configuration and sorts them by newest first.
     */
-	function loadAllPages() {
-		$dirs = glob($this->siteConfig['page_path'] . '/*', GLOB_ONLYDIR);
-		
-		foreach ($dirs as $pageDir) {
+	function loadContent($folder) {
+        $path = FileHandler::join_paths($this->siteConfig["projectPath"], $folder);
+        
+		$contentFiles = glob( $path . '/*.{md,html}', GLOB_BRACE); // Only get html and md files
+        
+		foreach ($contentFiles as $file) {
 			$Page = new Page($this->siteConfig, $this->logger);
-			$Page->loadPage(basename($pageDir));
+			$Page->loadPage($file, $folder);
 			
 			$this->pages[] = $Page;
 		}
-		
+        
 		// Sort by newest first
         usort($this->pages, function($a, $b) {
             return $b->metadata['timestamp'] - $a->metadata['timestamp']; 
@@ -47,31 +69,10 @@ class Steady {
             $FH->writeSinglePage($Page);
         }
         
-        $this->buildStaticPages();
-        
-        $FH->copyTemplateResources();
+        $FH->copyAssets();
         
         $this->logger->message("Done.");
-        $this->logger->message("Output directory: " . $this->siteConfig["build_path"]);
+        $this->logger->message("Output directory: _site");
     }
-    
-    /*
-        Builds static pages specified in config.ini
-    */
-    function buildStaticPages() {
-        $vars = array();
-        foreach($this->pages as $Page) {
-			$vars["posts"][] = $Page;
-        }
-        
-        foreach($this->siteConfig["staticPages"] as $pageName) {
-            $Template = new Template($this->siteConfig, $this->logger);
-            $pageHTML = $Template->compileTemplate($pageName, $vars);
-
-            $FH = new FileHandler($this->siteConfig, $this->logger);
-            $FH->writeSiteFiles($pageName, $pageHTML);   
-        }
-    }
-
 }
 ?>
