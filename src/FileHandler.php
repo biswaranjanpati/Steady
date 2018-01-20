@@ -24,7 +24,7 @@ class FileHandler {
         $pagePath = FileHandler::join_paths($outputPath, $metadata["slug"] . ".html");
         
         if(!is_dir($outputPath)){
-            mkdir($outputPath, 0755);
+            mkdir($outputPath, 0755, true);
         }
         
         // Write page to file
