@@ -35,41 +35,50 @@ class FileHandler {
         Copy all assets folders defined in config.ini
     */
     public function copyAssets() {
-        $folders = $this->siteConfig["assets"];
+        $assets = $this->siteConfig["assets"];
         
-        foreach ($folders as $folder) {
-            $this->logger->message("Copying assets in: " . $folder);
-            $srcPath =  FileHandler::join_paths($this->siteConfig["projectPath"], $folder);
-            $outputPath = FileHandler::join_paths($this->siteConfig["projectPath"], "_site", $folder);
+        foreach ($assets as $asset) {
+            $this->logger->message("Copying assets in: " . $asset);
+            $srcPath =  FileHandler::join_paths($this->siteConfig["projectPath"], $asset);
+            $outputPath = FileHandler::join_paths($this->siteConfig["projectPath"], "_site", $asset);
             
             self::recursiveRemove($outputPath);
-            if(!is_dir($outputPath)){
-                mkdir($outputPath, 0755, true);
-            }
             
-            // Copy all resources from src to output
-            $files = glob($srcPath . '/*');
-            
-            // TODO: implement recursive copy
-            foreach ($files as $filePath) {
-                if(is_file($filePath)) {
-                    $baseName = basename($filePath);
-                    copy($filePath, FileHandler::join_paths($outputPath, $baseName));
-                } else {
-                    $this->logger->info("All assets must be defined in config.ini.");
-                    $this->logger->info("Ignoring directory: " . $filePath);
+            if (is_dir($srcPath)) {
+                if(!is_dir($outputPath)){
+                    mkdir($outputPath, 0755, true);
                 }
+                
+                // Copy all resources from src to output
+                $files = glob($srcPath . '/*');
+                
+                // TODO: implement recursive copy
+                foreach ($files as $filePath) {
+                    if(is_file($filePath)) {
+                        $baseName = basename($filePath);
+                        copy($filePath, FileHandler::join_paths($outputPath, $baseName));
+                    }
+                }
+            } else if(is_file($srcPath)) {
+                copy($srcPath, $outputPath);
+            } else {
+                $this->logger->info("Asset not found: " . $asset);
             }
         }
     }
 
     /*
-        Delete all files/folders in a directory
+        Recursive delete function that supports files and directories
         https://stackoverflow.com/a/13440766/219118
     */
-    private static function recursiveRemove($dir) {
-        if(!is_dir($dir)) return 0;
-        $structure = glob(rtrim($dir, "/").'/*');
+    private static function recursiveRemove($path) {
+        if(!is_dir($path)) {
+            if (is_file($path)) {
+                unlink($path);
+            }
+            return 0;
+        }
+        $structure = glob(rtrim($path, "/").'/*');
         
         if (is_array($structure)) {
             foreach($structure as $file) {
@@ -77,8 +86,9 @@ class FileHandler {
                 elseif (is_file($file)) unlink($file);
             }
         }
-        rmdir($dir);
+        rmdir($path);
     }
+    
     
     /*
         Combines paths
